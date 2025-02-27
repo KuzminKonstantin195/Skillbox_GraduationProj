@@ -12,8 +12,13 @@
     ]
   },
   "ExpandedNodes": [
-    ""
+    "",
+    "\\out",
+    "\\search_engine",
+    "\\search_engine\\headers",
+    "\\search_engine\\sources",
+    "\\tests"
   ],
-  "SelectedNode": "\\Итоговый проект курса «Разработчик на C\u002B\u002B с нуля».pdf",
+  "SelectedNode": "\\search_engine",
   "PreviewInSolutionExplorer": false
 }

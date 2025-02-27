@@ -1,21 +1,12 @@
-﻿# CMakeList.txt: проект CMake для Skillbox_GraduationProj; включите исходный код и определения,
-# укажите здесь логику для конкретного проекта.
-#
+﻿
 cmake_minimum_required (VERSION 3.8)
 
-# Включение горячей перезагрузки для компиляторов MSVC, если поддерживается.
-if (POLICY CMP0141)
-  cmake_policy(SET CMP0141 NEW)
-  set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
-endif()
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-project ("Skillbox_GraduationProj")
+include(FetchContent)
 
-# Добавьте источник в исполняемый файл этого проекта.
-add_executable (Skillbox_GraduationProj "Skillbox_GraduationProj.cpp" "Skillbox_GraduationProj.h")
 
-if (CMAKE_VERSION VERSION_GREATER 3.12)
-  set_property(TARGET Skillbox_GraduationProj PROPERTY CXX_STANDARD 20)
-endif()
+add_subdirectory("search_engine")
+add_subdirectory("tests")
 
-# TODO: Добавьте тесты и целевые объекты, если это необходимо.
