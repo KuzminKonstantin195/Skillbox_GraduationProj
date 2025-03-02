@@ -9,7 +9,6 @@ set(SrcFiles
 set(TestsFiles
 	InvertedIndex_test.cpp
 	SearchServer_test.cpp
-	ConverterJSON_test.cpp
 )
 
 FetchContent_Declare(

@@ -42,7 +42,7 @@ vector<string> ConverterJSON::GetTextDocuments()
 
 	try
 	{
-		configFile.open("config.json");
+		configFile.open("..//config.json");
 	}
 	catch (const std::exception&)
 	{
@@ -58,9 +58,10 @@ vector<string> ConverterJSON::GetTextDocuments()
 	configJson = json::parse(configFile);
 
 	json filesList = configJson["files"];
+
 	for (auto &name : filesList)
 	{
-			result.push_back(getTextFromFile(name));
+		result.push_back(getTextFromFile(name));
 	}
 	configFile.close();
 
@@ -75,7 +76,7 @@ int ConverterJSON::GetResponsesLimit()
 
 	try
 	{
-		configFile.open("config.json");
+		configFile.open("..//config.json");
 	}
 	catch (const std::exception&)
 	{
@@ -106,7 +107,7 @@ vector<string> ConverterJSON::GetRequests()
 
 	try
 	{
-		requestsFile.open("requests.json");
+		requestsFile.open("..//requests.json");
 	}
 	catch (const std::exception&)
 	{
@@ -168,7 +169,7 @@ void ConverterJSON::putAnswers(vector<vector<pair<int, float>>>
 	answers)
 {
 
-	ofstream answersFile ("answers.json");
+	
 	json answerJson;
 
 	string requestName;
@@ -181,16 +182,16 @@ void ConverterJSON::putAnswers(vector<vector<pair<int, float>>>
 		switch (request.size())
 		{
 		case 0:
-			requestResultJson["\nresult"] = "false";
+			requestResultJson["result"] = "false";
 			break;
 		case 1:
-			requestResultJson["\nresult"] = "true";
-			requestResultJson["\ndocid"] = request[0].first;
+			requestResultJson["result"] = "true";
+			requestResultJson["docid"] = request[0].first;
 			requestResultJson["rank"] = round(request[0].second * 1000) / 1000;
 			break;
 		default:
-			requestResultJson["\nresult"] = "true";
-			requestResultJson["\nrelevance"] = createRelevance(request);
+			requestResultJson["result"] = "true";
+			requestResultJson["relevance"] = createRelevance(request);
 			break;
 		}
 
@@ -199,7 +200,7 @@ void ConverterJSON::putAnswers(vector<vector<pair<int, float>>>
 		reqNum++;
 		requestResultJson.clear();
 	}
-
+	ofstream answersFile("..//answers.json");
+	answersFile << answerJson;
 	answersFile.close();
 }
-

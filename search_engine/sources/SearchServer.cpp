@@ -58,17 +58,19 @@ vector<vector<RelativeIndex>> SearchServer::search (const vector<string>& querie
 
 	for (auto &query : queries_input)
 	{
-		auto wordsInQuery = wordSeparate(query);
+		auto wordsInQuery = wordSeparate(query);			// разделяем запрос на отдельные слова, убирая повторы
 		
+		wordsInQuery = sortingByEntry(wordsInQuery);		// сортируем список слов по кол-ву документов вхождения
+
 		resultFull.push_back(searchOneQuery(wordsInQuery));
 	}
-
+	/*
 #define MAX_ANSWERS_COUNT 5
 	if (resultFull.size() > MAX_ANSWERS_COUNT)
 	{
 		resultFull.resize(MAX_ANSWERS_COUNT);
 	}
-
+	*/
 	return resultFull;
 }
 
@@ -76,63 +78,58 @@ vector<RelativeIndex> SearchServer::searchOneQuery(const vector<string>& words)
 {
 	vector<RelativeIndex> result;
 	
-	map<int, int> resultMap;
-	map<int, int> buf;
+	map<int, int> resultMap;		// номер документа, кол-во вхождений
+	//map<int, int> buf;				
 
 	for (auto& word : words)
 	{
-		auto count = _index.GetWordCount(word);
-
-		// если результирующий словарь пустой - просто заполняем его
-		if (resultMap.empty())
+		auto entrys = _index.GetWordCount(word);		// получаем все вхождения по слову
+		if (!entrys.empty())
 		{
-			for (auto& entr : count)
+			for (auto& i : entrys)
 			{
-				resultMap[entr.doc_id] = entr.count;
+				resultMap[i.doc_id] += i.count;
 			}
-			continue;
-		}
-		else
-		{
-			// иначе с помощью буффера фильтруем результаты вхождений
-			// убиращий документы, в которых не встречается новое слово
-			for (auto& entr : count)
-			{
-				if (resultMap.find(entr.doc_id) != resultMap.end())
-				{
-					resultMap[entr.doc_id] += entr.count;
-					buf[entr.doc_id] = resultMap[entr.doc_id];
-				}
-			}
-			resultMap.clear();
-			resultMap = buf;
-			buf.clear();
 		}
 	}
+	
+	// результат - список со всеми вхождениями слов
+	// список отсортирован по номерам документов
+	// теперь надо отсортировать результаты по кол-ву вхождений
 
-	// преобразуем словарь в вектор RelativeIndex, одновременно сортируя
-	// по количеству вхождений
-	while (!resultMap.empty())
+	Entry maxEntr(0, 0);
+
+	// определим, сколько ответов выводить (5 по умолчанию)
+	int answersCount;
+	maxAnswerCount ? answersCount = maxAnswerCount : answersCount = 5;
+
+	// пока не исчерпаем словарь и/или не получим maxAnswerCount результатов, переносим словарь 
+	while (!resultMap.empty() && result.size() < maxAnswerCount)
 	{
-		auto maxEntry = findMax(resultMap);
+		for (auto& i : resultMap)
+		{
+			if (maxEntr.count < i.second)
+			{
+				maxEntr.doc_id = i.first;
+				maxEntr.count = i.second;
+			}
+			if (maxEntr.count == 0)
+			{
+				return vector<RelativeIndex>{};
+			}
+		}
 
-		result.push_back(RelativeIndex(maxEntry.first, maxEntry.second));
-
-		resultMap.erase(maxEntry.first);
+		result.push_back(RelativeIndex(maxEntr.doc_id, maxEntr.count));		// добавляем значение в результат
+		resultMap.erase(maxEntr.doc_id);									// извлекаем добавленное значние
+		maxEntr = Entry(0, 0);												// обнуляем значения максимума
 	}
 
-	// переводим количество вхождений в релевантность
-	int maxCount = result.begin()->rank;
-	// если максимальное кол-во вхождений == 0
-	// значит возвращаем пустой вектор
-	if (maxCount == 0)
-	{
-		return vector<RelativeIndex>{};
-	}
+	// последнее - переводим кол-во вхождений в релевантность
+	auto maxCount = result[0].rank;
+
 	for (auto& i : result)
 	{
-		i.rank = i.rank / maxCount;
-		i.rank = round(i.rank * 10) / 10;
+		i.rank /= maxCount;
 	}
 
 	return result;
@@ -154,3 +151,28 @@ pair<int,int> SearchServer::findMax (map<int, int> dict)
 	return maxEntryPair;
 }
 
+vector<string> SearchServer::sortingByEntry(vector<string> words)
+{
+	vector<string> result;
+	pair <int, int> maxEntryParameters (0,0);			// хранит кол-во вхождений и позицию слова в words
+
+	while (!words.empty())
+	{
+		for (auto i = 0; i < words.size(); i++)
+		{
+			string word = words[i];
+			int count = _index.GetWordCount(word).size();
+
+			if (count > maxEntryParameters.first)
+			{
+				maxEntryParameters.first = count;
+				maxEntryParameters.second = i;
+			}
+		}
+		result.push_back(words[maxEntryParameters.second]);			// добавляем слово с максимальным кол-вом вхождений в результат
+		words.erase(words.begin() + maxEntryParameters.second);		// убираем добавленное слово из начального вектора
+		maxEntryParameters = { 0,0 };								// обнуляем максимум
+	}
+	
+	return result;
+}

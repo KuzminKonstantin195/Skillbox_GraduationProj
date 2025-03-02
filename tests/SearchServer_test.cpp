@@ -2,7 +2,7 @@
 #include "SearchServer.h"
 
 using namespace std;
-/*
+
 TEST(TestCaseSearchServer, TestSimple) {
 	const vector<string> docs = {
 	"milk milk milk milk water water water",
@@ -27,7 +27,7 @@ TEST(TestCaseSearchServer, TestSimple) {
 	std::vector<vector<RelativeIndex>> result = srv.search(request);
 	ASSERT_EQ(result, expected);
 }
-*/
+
 TEST(TestCaseSearchServer, TestTop5) {
 	const vector<string> docs = {
 	"london is the capital of great britain",
@@ -53,17 +53,16 @@ TEST(TestCaseSearchServer, TestTop5) {
 	"tallinn is the capital of estonia",
 	"warsaw is the capital of poland",
 	};
-	//is 
-	const vector<string> request = { "moscow the capital of russia" };
+	const vector<string> request = { "moscow is the capital of russia" };
 	float val = 5.0f / 6.0f;
 	val = round(val * 10) / 10;
 	const std::vector<vector<RelativeIndex>> expected = {
 	{
-	{14, 1},
-	{7, val}/*, {doc_id=7 rank=0.800000012 }
-	//{0, 0.7},	//0.666666687
-	//{1, 0.7},	//0.666666687
-	{2, 0.7}*/	//0.666666687
+	{7, 1},
+	{14, 1}, 
+	{0, 0.666666687},	
+	{1, 0.666666687},	
+	{2, 0.666666687}	
 	}
 	};
 	InvertedIndex idx;

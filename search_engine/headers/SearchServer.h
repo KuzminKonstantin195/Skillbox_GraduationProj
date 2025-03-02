@@ -28,13 +28,14 @@ struct RelativeIndex {
 
 class SearchServer {
 public:
+	int maxAnswerCount;
 	/**
 	* @param idx в конструктор класса передаётся ссылка на класс
 	InvertedIndex,
 	* чтобы SearchServer мог узнать частоту слов встречаемых в
 	запросе
 	*/
-	SearchServer(InvertedIndex& idx) : _index(idx) {};
+	SearchServer(InvertedIndex& idx) : _index(idx) { maxAnswerCount = 0; };
 	/**
 	* Метод обработки поисковых запросов
 	* @param queries_input поисковые запросы взятые из файла
@@ -45,10 +46,12 @@ public:
 	std::vector<std::vector<RelativeIndex>> search (const
 		std::vector<std::string>& queries_input);
 private:
+	
 	InvertedIndex _index;
 	
 	std::vector<std::string> wordSeparate (const std::string& line);
 	std::string reformatingWord(std::string word);									// форматирование слов
 	std::vector<RelativeIndex> searchOneQuery(const std::vector<std::string>& words);
 	std::pair<int,int> findMax(std::map<int, int> dict);							// возвращает ключ с самым большим значением
+	std::vector<std::string> sortingByEntry(std::vector<std::string> words);
 };

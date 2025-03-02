@@ -15,20 +15,29 @@ int main()
 
 	ConverterJSON converter;
 	InvertedIndex invIndex;
-	SearchServer server (invIndex);
 
 	auto texts = converter.GetTextDocuments();
-
 	auto queryes = converter.GetRequests();
-
 	invIndex.UpdateDocumentBase(texts);
 	
-	auto answers = server.search(texts);
+	SearchServer server(invIndex);
+	server.maxAnswerCount = converter.GetResponsesLimit();		// задаем лимит ответов
+	auto answers = server.search(queryes);
 
 	vector<vector<pair<int, float>>> toPutAnswers;
 
 	toPutAnswers = rebuildAnswersToPut(answers);
+	cout << "Answers: " << endl;
 
+	for (auto& i : toPutAnswers)
+	{
+		cout << "\t";
+		for (auto& ii : i)
+		{
+			cout << ii.first << ": " << ii.second << " ";
+		}
+		cout << endl;
+	}
 	converter.putAnswers(toPutAnswers);
 
 	cout << "Завершение!" << endl;

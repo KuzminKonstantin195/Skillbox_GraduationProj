@@ -5,7 +5,7 @@ TEST(sample_test_case, sample_test)
 {
 	EXPECT_EQ(1, 1);
 }
-/*
+
 using namespace std;
 
 void TestInvertedIndexFunctionality(
@@ -79,4 +79,3 @@ TEST(TestCaseInvertedIndex, TestInvertedIndexMissingWord) {
 	TestInvertedIndexFunctionality(docs, requests, expected);
 
 }
-*/
